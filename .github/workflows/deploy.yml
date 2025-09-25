@@ -33,7 +33,7 @@ jobs:
         with:
           host: ${{ secrets.DOCKER_S104_DEMO_MACHINE_HOST }}
           username: ubuntu
-          key: ${{ secrets.Sai }}       # use your secret "Sai"
+          key: ${{ secrets.SAI }}       # use your secret "Sai"
           script_stop: true
           debug: true
           script: |
