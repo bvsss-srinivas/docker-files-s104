@@ -19,20 +19,20 @@ jobs:
       - name: List repo files
         run: ls -R
 
-      # Step 3: Save SSH key to a file
+      # Step 3: Save SSH key to /tmp to avoid tar permission issues
       - name: Save SSH key
         run: |
-          echo "${{ secrets.SAI }}" > Sai.pem
-          chmod 600 Sai.pem
+          echo "${{ secrets.SAI }}" > /tmp/Sai.pem
+          chmod 600 /tmp/Sai.pem
 
-      # Step 4: Copy files to EC2
+      # Step 4: Copy repo to EC2
       - name: Copy repo to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DOCKER_S104_DEMO_MACHINE_HOST }}
           username: ubuntu
-          key_path: Sai.pem        # use key file instead of secret string
-          source: "./*"
+          key_path: /tmp/Sai.pem
+          source: "./*"                  # copy all repo files
           target: /home/ubuntu/ecommercefullstack
 
       # Step 5: SSH into EC2 and deploy with Docker Compose
@@ -41,7 +41,7 @@ jobs:
         with:
           host: ${{ secrets.DOCKER_S104_DEMO_MACHINE_HOST }}
           username: ubuntu
-          key_path: Sai.pem        # use key file instead of secret string
+          key_path: /tmp/Sai.pem
           script_stop: true
           debug: true
           script: |
