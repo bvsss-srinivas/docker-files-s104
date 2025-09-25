@@ -11,29 +11,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout repo
       - name: Checkout Repo
         uses: actions/checkout@v3
 
+      # Step 2: List repo files (optional debug)
       - name: List repo files
         run: ls -R
 
-      # Copy files to EC2
+      # Step 3: Save SSH key to a file
+      - name: Save SSH key
+        run: |
+          echo "${{ secrets.SAI }}" > Sai.pem
+          chmod 600 Sai.pem
+
+      # Step 4: Copy files to EC2
       - name: Copy repo to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DOCKER_S104_DEMO_MACHINE_HOST }}
           username: ubuntu
-          key: ${{ secrets.SAI }}       # use your secret "Sai"
+          key_path: Sai.pem        # use key file instead of secret string
           source: "./*"
           target: /home/ubuntu/ecommercefullstack
 
-      # SSH into EC2 and deploy with Docker Compose
+      # Step 5: SSH into EC2 and deploy with Docker Compose
       - name: Deploy on EC2 with Docker Compose
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.DOCKER_S104_DEMO_MACHINE_HOST }}
           username: ubuntu
-          key: ${{ secrets.SAI }}       # use your secret "Sai"
+          key_path: Sai.pem        # use key file instead of secret string
           script_stop: true
           debug: true
           script: |
